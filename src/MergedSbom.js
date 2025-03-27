@@ -27,11 +27,12 @@ export default class MergedSbom {
 
         const packages = bom.packages?.filter(someValidRefs) ?? [];
         packages.forEach((p) => {
-            if (p.licenseConcluded === undefined) {
-                core.warning(`No license concluded for ${p.name}@${p.versionInfo}`);
+            const licenseKey = p.licenseConcluded ?? p.licenseDeclared;
+            if (licenseKey === undefined) {
+                core.warning(`No license concluded/declared for ${p.name}@${p.versionInfo}`);
                 return;
             }
-            this.addSbomEntry(p.licenseConcluded, p.name, p.versionInfo);
+            this.addSbomEntry(licenseKey, p.name, p.versionInfo);
         });
     }
 
@@ -89,17 +90,19 @@ export default class MergedSbom {
 
     addPackageToLicense(licenseKey, name, version) {
         const license = spdxLicenseList[licenseKey];
-        if (license === undefined) {
-            core.warning(`License not found: '${licenseKey}' for ${name}@${version}`);
+        if (/^LicenseRef-scancode-/.test(licenseKey)) {
+            core.info(`ignoring license '${licenseKey}' for ${name}@${version}`);
             return;
         }
-        const content = this.mergedSbom.get(license.name) ?? {
-            licenseName: license.name,
-            licenseText: license.licenseText,
-            packages: new Set(),
-        };
+        if (license === undefined) {
+            core.warning(`License definition not found for: '${licenseKey}' of ${name}@${version}`);
+            return;
+        }
+        const licenseName = license?.name ?? licenseKey;
+        const licenseText = license?.licenseText;
+        const content = this.mergedSbom.get(licenseName) ?? { licenseName, licenseText, packages: new Set() };
         content.packages.add(`${name}@${version}`);
-        this.mergedSbom.set(license.name, content);
+        this.mergedSbom.set(licenseName, content);
     }
 
     cleanLicenseKey(licenseKey) {

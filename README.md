@@ -34,7 +34,7 @@ flowchart TB
         A["Tag created"]
         AC@{ shape: braces, label: "in dof_app_deploy" }
     end
-    
+
     subgraph 2
         direction LR
         B["GitHub action gets triggered"]
@@ -59,7 +59,7 @@ flowchart TB
     B-->C;
     C-->D;
     D-->E;
-    
+
 style 1 color:#fff,stroke:#fff,padding:0px,margin:0px
 style 2 color:#fff,stroke:#fff,padding:0px,margin:0px
 style 3 color:#fff,stroke:#fff,padding:0px,margin:0px
@@ -67,13 +67,13 @@ style sbom-license-summarizer color: #55f,stroke: #339
 style 5 color:#fff,stroke:#fff,padding:0px,margin:0px
 ```
 
-
 ## Inputs
 
-| name     | description                                                                                                                 |
-| -------- | --------------------------------------------------------------------------------------------------------------------------- |
-| filename | name of the json-file containing the SBOM information in SPDX format                                                        |
-| repos    | list of repositories separated by semicolon - each entry in the format `{ project }/{ repo }@{ version };{ project }/s ...` |
+| name           | description                                                                                                                 |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| repos          | list of repositories separated by semicolon - each entry in the format `{ project }/{ repo }@{ version };{ project }/s ...` |
+| filename       | name of the json-file containing the SBOM information in SPDX format in each repo                                           |
+| outputFilename | name of the generated summarizing license JSON file                                                                         |
 
 example:
 
@@ -85,9 +85,8 @@ with:
 
 ## Outputs
 
-| name | description                           |
-| ---- | ------------------------------------- |
-| json | summarizing json - grouped by license |
+The generated file containing the summarized list of all licenses and packages in the following format.
+**_Hint_**: the file will be generated and written using the input-parameter `outputFilename`.
 
 example:
 
