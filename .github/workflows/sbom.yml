@@ -1,0 +1,28 @@
+name: SBOM Generation
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Generate SBOM
+        id: sbom
+        uses: RakutenMaritime/maritime-sbom-action/generate@v2.2
+        with:
+          scan-path: .
+          output-file: dependencies.json
+
+      - name: Display SBOM
+        run: cat ${{ steps.sbom.outputs.sbom-file }}
+
+      - name: Upload SBOM
+        uses: RakutenMaritime/maritime-sbom-action/upload@v2.2
+        with:
+          sbom-file: ${{ steps.sbom.outputs.sbom-file }}
+          api-key: ${{ secrets.SBOM_API_KEY }}   # X-Api-Key 헤더로 전송
